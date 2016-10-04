@@ -116,4 +116,26 @@ describe('Node Server Request Listener Function', function() {
       });
   });
 
+  it('Should be able to order the messages by date', function() {
+
+  });
+
+  it('Should be able to parse only valid data tags', function() {
+    
+  });
+
+  it('Should be able to accept only valid messages', function() {
+    var stubMsg = {
+      foo: 'bar',
+      baz: 0
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(400);
+    
+  });
+
 });

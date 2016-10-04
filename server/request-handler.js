@@ -1,4 +1,5 @@
 var messageData = {results: []};
+var messageId = 1;
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
@@ -34,7 +35,7 @@ var requestHandler = function(request, response) {
   var headers = request.headers;
   var method = request.method;
   var url = request.url;
-  var validUrls = ['/classes/messages', '/classes/rooms'];
+  var validUrls = ['/classes/messages/', '/classes/rooms/', '/classes/messages', '/classes/rooms'];
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -61,7 +62,7 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
+  headers['Content-Type'] = 'application/json';
 
 
   // Make sure to always call response.end() - Node may not send
@@ -72,35 +73,29 @@ var requestHandler = function(request, response) {
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
   //response.end('Hello, World!');
-  if ((method === 'POST') && (url === '/classes/messages')) {
+  if ((method === 'POST') && (validUrls.indexOf(url) >= 0)) {
     var stream = '';
     request.on('data', function(data) {
       stream += data;
-      console.log(data);
+      // console.log(data);
       //messageData.results.push(JSON.parse(data));
     });
     request.on('end', function() {
       // console.log(stream);
       //console.log(messageData)
-      messageData.results.push(JSON.parse(stream));
-    });
-    statusCode = 201;
-  } else if ((method === 'POST') && (url === '/classes/room')) {
-    var stream = '';
-    request.on('data', function(data) {
-      stream += data;
-      console.log(data);
-      //messageData.results.push(JSON.parse(data));
-    });
-    request.on('end', function() {
-      // console.log(stream);
-      //console.log(messageData)
-      messageData.results.push(JSON.parse(stream));
+      var msg = JSON.parse(stream);
+      msg.objectId = messageId;
+      messageId++;
+      messageData.results.push(msg);
     });
     statusCode = 201;
   } else if ((method === 'GET') && (validUrls.indexOf(url) >= 0)) {
     statusCode = 200;
+  } else if (method === 'OPTIONS') {
+    statusCode = 200;
   } else {
+    console.log(method);
+    console.log(url);
     statusCode = 404;
   }
   // .writeHead() writes to the request line and headers of the response,
